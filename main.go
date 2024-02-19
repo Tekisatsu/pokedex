@@ -10,19 +10,19 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
-	state       pokeapi.JsonConfig
+	callback    func(*pokeapi.JsonConfig) error
+	state       *pokeapi.JsonConfig
 }
 
 var cmdMap = map[string]cliCommand{}
 
-func commandHelp() error {
+func commandHelp(_ *pokeapi.JsonConfig) error {
 	for _, cmd := range cmdMap {
 		fmt.Printf("%v: %v\n", cmd.name, cmd.description)
 	}
 	return nil
 }
-func commandExit() error {
+func commandExit(_ *pokeapi.JsonConfig) error {
 	return io.EOF
 }
 
@@ -41,7 +41,7 @@ func init() {
 		name:        "map",
 		description: "show the next 20 area locations",
 		callback:    pokeapi.CommandMap,
-		state:       pokeapi.JsonConfig{},
+		state:       &pokeapi.JsonConfig{},
 	}
 }
 

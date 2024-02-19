@@ -16,7 +16,7 @@ func startRepl() {
 		t, ok := cmdMap[text]
 
 		if ok {
-			tCall := t.callback()
+			tCall := t.callback(t.state)
 			if tCall == io.EOF {
 				break
 			}

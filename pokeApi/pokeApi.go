@@ -23,13 +23,28 @@ type Result struct {
 	Url  string `json:"url"`
 }
 
-func CommandMap(state *JsonConfig) error {
+func GetMapUrl(state *JsonConfig) error {
 	var url string
 	if state.Next == "" {
 		url = "https://pokeapi.co/api/v2/location-area"
 	} else {
 		url = state.Next
 	}
+	CommandMap(url, state)
+	return nil
+}
+func GetPrevMapUrl(state *JsonConfig) error {
+	var url string
+	if state.Previous == "" {
+		url = "https://pokeapi.co/api/v2/location-area"
+	} else {
+		url = state.Previous
+	}
+	CommandMap(url, state)
+	return nil
+}
+func CommandMap(url string, state *JsonConfig) error {
+
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)

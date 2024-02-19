@@ -40,7 +40,13 @@ func init() {
 	cmdMap["map"] = cliCommand{
 		name:        "map",
 		description: "show the next 20 area locations",
-		callback:    pokeapi.CommandMap,
+		callback:    pokeapi.GetMapUrl,
+		state:       &pokeapi.JsonConfig{},
+	}
+	cmdMap["mapb"] = cliCommand{
+		name:        "mapb",
+		description: "show the previous 20 area locations",
+		callback:    pokeapi.GetPrevMapUrl,
 		state:       &pokeapi.JsonConfig{},
 	}
 }

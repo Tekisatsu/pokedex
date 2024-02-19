@@ -11,6 +11,7 @@ type cliCommand struct {
 	name        string
 	description string
 	callback    func() error
+	state       pokeapi.JsonConfig
 }
 
 var cmdMap = map[string]cliCommand{}
@@ -40,6 +41,7 @@ func init() {
 		name:        "map",
 		description: "show the next 20 area locations",
 		callback:    pokeapi.CommandMap,
+		state:       pokeapi.JsonConfig{},
 	}
 }
 

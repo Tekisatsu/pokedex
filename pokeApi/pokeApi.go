@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type jsonConfig struct {
+type JsonConfig struct {
 	Next     string   `json:"next"`
 	Previous string   `json:"previous"`
 	Location Location `json:"location"`
@@ -36,7 +36,7 @@ func CommandMap() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var d jsonConfig
+	var d JsonConfig
 	errD := json.Unmarshal(body, &d)
 	if errD != nil {
 		log.Fatal(errD)

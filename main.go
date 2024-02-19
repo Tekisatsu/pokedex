@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+
+	pokeapi "github.com/tekisatsu/pokedex/pokeApi"
 )
 
 type cliCommand struct {
@@ -22,6 +24,7 @@ func commandHelp() error {
 func commandExit() error {
 	return io.EOF
 }
+
 func init() {
 	cmdMap["help"] = cliCommand{
 		name:        "help",
@@ -32,6 +35,11 @@ func init() {
 		name:        "exit",
 		description: "exit CLI",
 		callback:    commandExit,
+	}
+	cmdMap["map"] = cliCommand{
+		name:        "map",
+		description: "show the next 20 area locations",
+		callback:    pokeapi.CommandMap,
 	}
 }
 

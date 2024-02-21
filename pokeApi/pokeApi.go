@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 type JsonConfig struct {
@@ -21,6 +22,14 @@ type Location struct {
 type Result struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
+}
+
+type Cache struct {
+	Data map[string]cacheEntry
+}
+type cacheEntry struct {
+	createdAt time.Time
+	val       []byte
 }
 
 func GetMapUrl(state *JsonConfig) error {

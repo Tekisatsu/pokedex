@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -26,12 +27,35 @@ type Result struct {
 
 type Cache struct {
 	Data map[string]cacheEntry
+	Mutex sync.Mutex
 }
 type cacheEntry struct {
 	createdAt time.Time
 	val       []byte
 }
-
+func NewCache() *Cache {
+	return &Cache{
+		Data: make(map[string]cacheEntry),
+		Mutex: sync.Mutex{},
+	}
+}
+func (c *Cache) add (key string, val []byte) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+	c.Data[key] = cacheEntry {
+		createdAt: time.Now(),
+		val: val,
+	}
+}
+func (c *Cache) get (key string) ([]byte, bool) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+	value, ok := c.Data[key]
+	if !ok {
+		return nil, false
+		}
+	return value.val, true
+}
 func GetMapUrl(state *JsonConfig) error {
 	var url string
 	if state.Next == "" {

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"time"
 
 	pokeapi "github.com/tekisatsu/pokedex/pokeApi"
 )
@@ -10,23 +11,27 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*pokeapi.JsonConfig) error
-	state       *pokeapi.JsonConfig
+	callback    func(*pokeapi.CliContext) error
+	context     *pokeapi.CliContext
 }
 
 var cmdMap = map[string]cliCommand{}
 
-func commandHelp(_ *pokeapi.JsonConfig) error {
+func commandHelp(_ *pokeapi.CliContext) error {
 	for _, cmd := range cmdMap {
 		fmt.Printf("%v: %v\n", cmd.name, cmd.description)
 	}
 	return nil
 }
-func commandExit(_ *pokeapi.JsonConfig) error {
+func commandExit(_ *pokeapi.CliContext) error {
 	return io.EOF
 }
 
 func init() {
+	shareContext := &pokeapi.CliContext{
+		State: &pokeapi.JsonConfig{},
+		Cache: pokeapi.NewCache(15 * time.Minute),
+	}
 	cmdMap["help"] = cliCommand{
 		name:        "help",
 		description: "Show help message",
@@ -41,17 +46,16 @@ func init() {
 		name:        "map",
 		description: "show the next 20 area locations",
 		callback:    pokeapi.GetMapUrl,
-		state:       &pokeapi.JsonConfig{},
+		context:     shareContext,
 	}
 	cmdMap["mapb"] = cliCommand{
 		name:        "mapb",
 		description: "show the previous 20 area locations",
 		callback:    pokeapi.GetPrevMapUrl,
-		state:       &pokeapi.JsonConfig{},
+		context:     shareContext,
 	}
 }
 
 func main() {
-
 	startRepl()
 }

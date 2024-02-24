@@ -9,14 +9,13 @@ import (
 )
 
 func startRepl() {
-
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		text := scanner.Text()
 		t, ok := cmdMap[text]
 
 		if ok {
-			tCall := t.callback(t.state)
+			tCall := t.callback(t.context)
 			if tCall == io.EOF {
 				break
 			}

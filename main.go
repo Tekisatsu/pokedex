@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"time"
-
 	pokeapi "github.com/tekisatsu/pokedex/pokeApi"
 )
 
@@ -53,6 +52,12 @@ func init() {
 		description: "show the previous 20 area locations",
 		callback:    pokeapi.GetPrevMapUrl,
 		context:     shareContext,
+	}
+	cmdMap["encounter"] = cliCommand{
+		name: "encounter",
+		description: "show encounters in an area",
+		callback: pokeapi.Encounter,
+		context: shareContext,
 	}
 }
 

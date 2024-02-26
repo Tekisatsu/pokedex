@@ -8,17 +8,24 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"errors"
 )
 
 type CliContext struct {
 	State *JsonConfig
 	Cache *Cache
+	Args []string
 }
 type JsonConfig struct {
 	Next     string   `json:"next"`
 	Previous string   `json:"previous"`
 	Location Location `json:"location"`
 	Result   []Result `json:"results"`
+	Encounter []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
 }
 type Location struct {
 	Name string `json:"name"`
@@ -28,7 +35,6 @@ type Result struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
 }
-
 type Cache struct {
 	Data     map[string]cacheEntry
 	Mutex    sync.Mutex
@@ -81,6 +87,44 @@ func (c *Cache) reapStaleEntries() {
 		}
 	}
 }
+func Encounter(context *CliContext) error {
+	if len(context.Args) == 0 {
+		return errors.New("Area not provided")
+	}
+	areaName := context.Args[0]
+	url := "https://pokeapi.co/api/v2/location-area/"+areaName+"/"
+	fmt.Println(url)
+	value, ok := context.Cache.get(url)
+	if ok {
+		errC := json.Unmarshal(value, context.State)
+		if errC != nil {
+			log.Fatal(errC)
+		}
+		fmt.Println(context.State)
+	}
+	res, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := io.ReadAll(res.Body)
+	if res.StatusCode > 299 {
+		log.Fatalf("Response failed. Status code: %d", res.StatusCode)
+	}
+	res.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	context.Cache.add(url, body)
+	var d JsonConfig
+	errD := json.Unmarshal(body, &d)
+	if errD != nil {
+		log.Fatal(errD)
+	}
+	for _, item:= range d.Encounter {
+		fmt.Println(item.Pokemon.Name)
+	}
+	return nil
+}
 func GetMapUrl(context *CliContext) error {
 	var url string
 	if context.State.Next == "" {
@@ -109,7 +153,7 @@ func CommandMap(url string, context *CliContext) error {
 		if errC != nil {
 			log.Fatal(errC)
 		}
-		fmt.Println(value)
+		fmt.Println(context.State)
 	}
 	res, err := http.Get(url)
 	if err != nil {
@@ -129,7 +173,7 @@ func CommandMap(url string, context *CliContext) error {
 	if errD != nil {
 		log.Fatal(errD)
 	}
-	for _, item := range d.Result {
+	for _, item:= range d.Result {
 		fmt.Println(item.Name)
 	}
 	context.State.Next, context.State.Previous = d.Next, d.Previous

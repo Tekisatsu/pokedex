@@ -30,6 +30,7 @@ func init() {
 	shareContext := &pokeapi.CliContext{
 		State: &pokeapi.JsonConfig{},
 		Cache: pokeapi.NewCache(15 * time.Minute),
+		Pokedex: make(map[string][]byte),
 	}
 	cmdMap["help"] = cliCommand{
 		name:        "help",

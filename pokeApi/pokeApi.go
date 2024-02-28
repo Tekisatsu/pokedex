@@ -15,6 +15,7 @@ type CliContext struct {
 	State *JsonConfig
 	Cache *Cache
 	Args []string
+	Pokedex map[string][]byte
 }
 type JsonConfig struct {
 	Next     string   `json:"next"`
@@ -43,9 +44,6 @@ type Cache struct {
 type cacheEntry struct {
 	createdAt time.Time
 	val       []byte
-}
-type Pokedex struct {
-	Pokemon map[string][]byte
 }
 func NewCache(interval time.Duration) *Cache {
 	cache := &Cache{
@@ -95,13 +93,11 @@ func Catch(context *CliContext) error {
 	}
 	pokemonName := context.Args[0]
 	url := "https://pokeapi.co/api/v2/pokemon/"+pokemonName+"/"
-	value, ok := context.Cache.get(url)
+	_, ok := context.Cache.get(url)
 	if ok {
-		errC := json.Unmarshal(value, context.State)
-		if errC != nil {
-			log.Fatal(errC)
-		}
-		fmt.Println(context.State)
+		context.Pokedex[pokemonName] = context.Cache.Data[url].val
+		fmt.Printf("%v cached pokemon caught\n",pokemonName)
+		return nil
 	}
 	res, err := http.Get(url)
 	if err != nil {
@@ -116,7 +112,8 @@ func Catch(context *CliContext) error {
 		log.Fatal(err)
 	}
 	context.Cache.add(url, body)
-	fmt.Println(body)
+	context.Pokedex[pokemonName] = body
+	fmt.Printf("%v pokemon caught\n",pokemonName)
 	return nil
 }
 func Encounter(context *CliContext) error {

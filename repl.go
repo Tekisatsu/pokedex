@@ -23,7 +23,10 @@ func startRepl() {
 		}
 		if ok && len(command) == 2 {
 			t.context.Args = []string{command[1]}
-			t.callback(t.context)
+			tCall := t.callback(t.context)
+			if tCall != nil {
+				fmt.Println(tCall)
+			}
 		}
 		if !ok {
 			err := errors.New("not a valid command")

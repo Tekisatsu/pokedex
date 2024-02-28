@@ -16,6 +16,7 @@ type CliContext struct {
 	Cache *Cache
 	Args []string
 	Pokedex map[string][]byte
+	Info Pokemon
 }
 type JsonConfig struct {
 	Next     string   `json:"next"`
@@ -44,6 +45,22 @@ type Cache struct {
 type cacheEntry struct {
 	createdAt time.Time
 	val       []byte
+}
+type Pokemon struct {
+	Name string `json:"name"`
+	Height int `json:"height"`
+	Weight int `json:"weight"`
+	Stats []struct {
+		BaseStat int `json:"base_stat"`
+		Stat struct {
+			Name string `json:"name"`
+		} `json:"stat"`
+	} `json:"stats"`
+	Types []struct {
+		Type struct {
+			Name string `json:"name"`
+		} `json:"type"`
+	} `json:"types"`
 }
 func NewCache(interval time.Duration) *Cache {
 	cache := &Cache{
@@ -86,6 +103,29 @@ func (c *Cache) reapStaleEntries() {
 			delete(c.Data, key)
 		}
 	}
+}
+func Inspect(context *CliContext) error {
+	pokemonName := context.Args[0]
+	if len(pokemonName) == 0 {
+		return errors.New("no pokemon provided")
+	}
+	var d Pokemon
+	val,ok := context.Pokedex[pokemonName]
+	if !ok {
+		return errors.New("pokemon not caught")
+	}
+	err := json.Unmarshal(val,&d)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Name: %v\nHeight: %v\nWeight: %v\n",d.Name,d.Height,d.Weight)
+	for _,s := range d.Stats {
+		fmt.Printf("%v: %v\n",s.Stat.Name,s.BaseStat)
+	}
+	for _,t:= range d.Types {
+		fmt.Println(t.Type.Name)
+	}
+	return nil
 }
 func Catch(context *CliContext) error {
 	if len(context.Args) == 0 {

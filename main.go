@@ -66,6 +66,12 @@ func init() {
 		callback: pokeapi.Catch,
 		context: shareContext,
 	}
+	cmdMap["inspect"] = cliCommand{
+		name: "inspect",
+		description: "show caught Pokemon stats",
+		callback: pokeapi.Inspect,
+		context: shareContext,
+	}
 }
 
 func main() {

@@ -72,6 +72,12 @@ func init() {
 		callback: pokeapi.Inspect,
 		context: shareContext,
 	}
+	cmdMap["pokedex"] = cliCommand{
+		name: "pokedex",
+		description: "show all Pokemon in Pokedex",
+		callback: pokeapi.Pokedex,
+		context: shareContext,
+	}
 }
 
 func main() {

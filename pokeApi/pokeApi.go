@@ -2,13 +2,13 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"sync"
 	"time"
-	"errors"
 )
 
 type CliContext struct {
@@ -103,6 +103,17 @@ func (c *Cache) reapStaleEntries() {
 			delete(c.Data, key)
 		}
 	}
+}
+func Pokedex(context *CliContext) error {
+	var d Pokemon
+	for _,p := range context.Pokedex {
+		err := json.Unmarshal(p,&d)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%v\n",d.Name)
+	}
+	return nil
 }
 func Inspect(context *CliContext) error {
 	pokemonName := context.Args[0]
